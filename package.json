@@ -1,0 +1,60 @@
+{
+  "name": "ide-games",
+  "displayName": "IDE Games",
+  "description": "AI çalışırken sizi eğlendiren mini oyun koleksiyonu — 2048, Runner, Code Dust, Memory, Flappy Bird",
+  "version": "3.0.0",
+  "publisher": "berkesasa",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/berkesasa/ide-games"
+  },
+  "homepage": "https://github.com/berkesasa/ide-games#readme",
+  "bugs": {
+    "url": "https://github.com/berkesasa/ide-games/issues"
+  },
+  "keywords": [
+    "game",
+    "games",
+    "mini-game",
+    "2048",
+    "runner",
+    "memory",
+    "fun",
+    "entertainment",
+    "ai",
+    "productivity"
+  ],
+  "engines": {
+    "vscode": "^1.93.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./extension.js",
+  "contributes": {
+    "chatParticipants": [
+      {
+        "id": "ide-games.games",
+        "fullName": "IDE Games",
+        "name": "games",
+        "description": "AI çalışırken mini oyun koleksiyonunu başlatır",
+        "isSticky": false
+      }
+    ],
+    "commands": [
+      {
+        "command": "ideGames.open",
+        "title": "IDE Games: Oyunları Aç"
+      },
+      {
+        "command": "ideGames.close",
+        "title": "IDE Games: Oyunları Kapat"
+      }
+    ]
+  },
+  "icon": "icon.png"
+}

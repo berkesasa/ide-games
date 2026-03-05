@@ -1,0 +1,9 @@
+# VSIX paketine dahil edilmeyecek dosyalar
+.vscode/**
+node_modules/**
+.gitignore
+.DS_Store
+*.vsix
+TODO.md
+CONTRIBUTING.md
+CHANGELOG.md
