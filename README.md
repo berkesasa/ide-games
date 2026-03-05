@@ -1,111 +1,132 @@
 # 🎮 IDE Games — VS Code Extension
 
-> AI bir cevap üretirken (veya istediğiniz her an) sizi eğlendirecek 5 adetlik mini oyun koleksiyonu.
+> A collection of 5 mini-games to keep you entertained while AI is generating a response — or whenever you feel like playing.
 
 ---
 
-## 🕹️ Oyunlar
+## 🕹️ Games
 
-| # | Oyun | Açıklama | Durum |
-|---|------|-----------|-------|
-| 1 | 🔢 **2048** | Klasik 2048 — kaydır, birleştir, 2048'e ulaş | 🚧 Yapılıyor |
-| 2 | 🐸 **Crossy Road** | Popüler karşıdan karşıya geçme oyunu | 🔜 Planlıyor |
-| 3 | 🏃 **Runner** | Sonsuz koşucu — zıpla, engellerden kaç | ✅ Mevcut (iyileştirilecek) |
-| 4 | 🧹 **Code Dust** | Kazı-Kazan mekaniği — VS Code arka plan rengiyle kaplı ekranı fare hareketiyle silerek gizli görseli ortaya çıkar (`destination-out` canvas tekniği) | 🔄 Yeniden tasarlanıyor |
-| 5 | 🧠 **Memory Game** | Renk çiftlerini eşleştir, en az hamlede tamamla | ✅ Mevcut (iyileştirilecek) |
-| 6 | 🐦 **Flappy Bird** | Boruların arasından geç, düşme! | 🚧 Yapılıyor |
+| # | Game | Description | Status |
+|---|------|-------------|--------|
+| 1 | 🔢 **2048** | Classic 2048 — slide, merge, reach 2048 | ✅ Available |
+| 2 | 🐸 **Crossy Road** | Cross the road without getting hit | 🔜 Planned |
+| 3 | 🏃 **Runner** | Endless runner — jump over obstacles | ✅ Available |
+| 4 | 🧹 **Code Dust** | Scratch-off mechanic — erase the dust to reveal a hidden scene | ✅ Available |
+| 5 | 🧠 **Memory** | Match color pairs in as few moves as possible | ✅ Available |
+| 6 | 🐦 **Flappy Bird** | Fly through pipes, don't fall! | 🔜 Planned |
 
 ---
 
-## 📁 Proje Yapısı
+## 📁 Project Structure
 
 ```
-ai-ide-game/
-├── extension.js          # Ana VS Code extension giriş noktası (routing + VS Code API)
+ide-games/
+├── extension.js          # VS Code extension entry point (routing + VS Code API only)
 ├── games/
-│   ├── runner.js         # 🏃 Runner — sonsuz koşucu
-│   ├── game2048.js       # 🔢 2048 — klasik sayı birleştirme
-│   ├── crossyroad.js     # 🐸 Crossy Road — karşıdan karşıya geçiş
-│   ├── codedust.js       # 🧹 Code Dust — Kazı-Kazan / scratch-off
-│   ├── memory.js         # 🧠 Memory — çift eşleştirme
-│   └── flappybird.js     # 🐦 Flappy Bird — boru labirenti
+│   ├── runner.js         # 🏃 Runner — endless runner
+│   ├── game2048.js       # 🔢 2048 — classic number merge
+│   ├── crossyroad.js     # 🐸 Crossy Road — road crossing (planned)
+│   ├── codedust.js       # 🧹 Code Dust — scratch-off canvas game
+│   ├── memory.js         # 🧠 Memory — color pair matching
+│   └── flappybird.js     # 🐦 Flappy Bird — pipe navigation (planned)
 ├── package.json
 ├── icon.png
 ├── README.md
-└── TODO.md
+└── CHANGELOG.md
 ```
 
-> **Neden her oyun ayrı dosyada?**
-> - 🔍 **Debug kolaylığı** — hata izlemek tek bir 800 satırlık dosyada değil, ilgili oyunun dosyasında
-> - ♻️ **Yeniden kullanılabilirlik** — oyunları bağımsız test edebilir, ayrı geliştirip `extension.js`'e `require()` ile dahil edebilirsin
-> - 👥 **Takım çalışması** — birden fazla kişi farklı oyunlar üzerinde çakışmadan çalışabilir
-> - 📦 **Ölçeklenebilirlik** — yeni oyun eklemek → yeni dosya + `extension.js`'e 2 satır
+> **Why is each game in a separate file?**
+> - 🔍 **Easy debugging** — trace errors in the relevant game file, not a monolithic 800-line file
+> - ♻️ **Reusability** — each game can be tested independently and included in `extension.js` via `require()`
+> - 👥 **Team-friendly** — multiple contributors can work on different games without conflicts
+> - 📦 **Scalability** — adding a new game means creating one file + 2 lines in `extension.js`
 
 ---
 
-## 🚀 Nasıl Kullanılır?
+## 🚀 How to Use
 
-### Oyun Seçici
-1. Status bar'daki **🎮 IDE Games** butonuna tıkla
-2. Komut paleti (`Cmd+Shift+P` / `Ctrl+Shift+P`) → `IDE Games: Oyunları Aç`
-3. Chat'te `@games` yazıp sorunuzu sorun — AI yanıt üretirken oyun başlar
+### Opening Games
+1. Click the **🎮 IDE Games** button in the status bar
+2. Open the command palette (`Cmd+Shift+P` / `Ctrl+Shift+P`) → `IDE Games: Open Games`
+3. Type `@games` in the chat panel — the game picker opens while AI responds
 
-### Kontroller
+### Controls
 
-| Oyun | Kontrol |
-|------|---------|
-| **Runner** | `Space` veya Fare Tıklama → Zıpla |
-| **2048** | `↑ ↓ ← →` Ok tuşları → Kaydır |
-| **Crossy Road** | `↑ ↓ ← →` Ok tuşları → Hareket |
-| **Code Dust** | Fare Hareketi → Kazı (tıklamaya gerek yok) |
-| **Memory** | Fare Tıklama → Kart aç |
-| **Flappy Bird** | `Space` veya Fare Tıklama → Kanat çırp |
-| **Tüm oyunlar** | `ESC` → Kapat \| `🎮 Change Game` → Oyun seçici |
+| Game | Controls |
+|------|----------|
+| **Runner** | `Space` or Click → Jump |
+| **2048** | `↑ ↓ ← →` Arrow keys or `W A S D` → Slide \| Swipe on touch |
+| **Crossy Road** | `↑ ↓ ← →` Arrow keys → Move |
+| **Code Dust** | Mouse drag → Scratch (no click needed) |
+| **Memory** | Click → Flip card |
+| **Flappy Bird** | `Space` or Click → Flap |
+| **All games** | `ESC` → Close \| `🎮 Change Game` → Game picker |
 
 ---
 
-## 🛠️ Geliştirme
+## 🛠️ Development
 
 ```bash
-# Projeyi aç
-code ai-ide-game/
+# Clone the repository
+git clone https://github.com/berkesasa/ide-games.git
+cd ide-games
 
-# F5 → Extension Development Host açılır
-# Status bar'daki 🎮 butonu ile test et
+# Open in VS Code
+code .
 
-# Yeni oyun ekleme
-# 1. games/yenioyun.js oluştur → module.exports = { getYeniOyunHTML }
-# 2. extension.js → const { getYeniOyunHTML } = require('./games/yenioyun')
-# 3. showGamePicker() listesine { label, description, game: 'yenioyun' } ekle
-# 4. htmlMap nesnesine yenioyun: getYeniOyunHTML ekle
+# Press F5 → Opens Extension Development Host
+# Use the 🎮 button in the status bar to test
 ```
 
-### Code Dust — Teknik Not
-
-Code Dust, VS Code'un kendi temasına uyum sağlayan bir **Kazı-Kazan** oyunudur:
+### Adding a New Game
 
 ```js
-// Üst katman → VS Code editor background rengi
+// 1. Create games/yourgame.js
+function getYourGameHTML(nonce) {
+    return `<!DOCTYPE html>...`;
+}
+module.exports = { getYourGameHTML };
+
+// 2. Import in extension.js
+const { getYourGameHTML } = require('./games/yourgame');
+
+// 3. Add to showGamePicker()
+{ label: '🎯 Your Game', description: 'Short description', game: 'yourgame' }
+
+// 4. Add to htmlMap and titles in createGamePanel()
+```
+
+### Code Dust — Technical Notes
+
+Code Dust is a **scratch-off** game that adapts to your VS Code theme:
+
+```js
+// Top layer uses VS Code editor background color
 const bgColor = getComputedStyle(document.body)
   .getPropertyValue('--vscode-editor-background');
 
-// Fare hareket ettiğinde piksel sil
+// On mousemove, erase pixels to reveal the hidden scene below
 ctx.globalCompositeOperation = 'destination-out';
 ctx.arc(x, y, brushRadius, 0, Math.PI * 2);
 ctx.fill();
-// → Altındaki gizli görsel veya gradient ortaya çıkar
 ```
 
 ---
 
-## 🔧 Uyumluluk
+## 🔧 Compatibility
 
 - ✅ VS Code
-- ✅ Cursor  
+- ✅ Cursor
 - ✅ Windsurf
 
 ---
 
-## 📄 Lisans
+## 🤝 Contributing
 
-MIT © berkesasa
+See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on how to contribute a new game or fix a bug.
+
+---
+
+## 📄 License
+
+MIT © [berkesasa](https://github.com/berkesasa)

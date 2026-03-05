@@ -1,81 +1,81 @@
 # 🤝 Contributing to IDE Games
 
-Katkıda bulunmak istediğin için teşekkürler! Aşağıdaki kılavuz süreci kolaylaştırır.
+Thank you for your interest in contributing! This guide will help you get started quickly.
 
 ---
 
-## 🚀 Geliştirme Ortamı
+## 🚀 Development Setup
 
 ```bash
-# Repoyu klonla
+# Clone the repository
 git clone https://github.com/berkesasa/ide-games.git
 cd ide-games
 
-# VS Code'da aç
+# Open in VS Code
 code .
 
-# F5 → "Run Extension" → Extension Development Host açılır
-# Status bar'daki 🎮 butonuyla test et
+# Press F5 → "Run Extension" → Extension Development Host opens
+# Use the 🎮 button in the status bar to test
 ```
 
-## 📁 Proje Yapısı
+## 📁 Project Structure
 
 ```
 ide-games/
-├── extension.js        # Ana giriş noktası — VS Code API + routing
-├── games/              # Her oyun kendi dosyasında
+├── extension.js        # Entry point — VS Code API + routing only
+├── games/              # Each game in its own file
 │   ├── game2048.js     # 🔢 2048
 │   ├── runner.js       # 🏃 Runner
 │   ├── codedust.js     # 🧹 Code Dust
 │   ├── memory.js       # 🧠 Memory
-│   └── flappybird.js   # 🐦 Flappy Bird
+│   └── flappybird.js   # 🐦 Flappy Bird (planned)
 ├── package.json
 ├── icon.png
 └── README.md
 ```
 
-## 🎮 Yeni Oyun Eklemek
+## 🎮 Adding a New Game
 
-1. `games/yenioyun.js` oluştur:
+1. Create `games/yourgame.js`:
    ```js
-   function getYeniOyunHTML(nonce) {
+   function getYourGameHTML(nonce) {
        return `<!DOCTYPE html>...`;
    }
-   module.exports = { getYeniOyunHTML };
+   module.exports = { getYourGameHTML };
    ```
 
-2. `extension.js` içinde dahil et:
+2. Import it in `extension.js`:
    ```js
-   const { getYeniOyunHTML } = require('./games/yenioyun');
+   const { getYourGameHTML } = require('./games/yourgame');
    ```
 
-3. `showGamePicker()` listesine ekle:
+3. Add it to `showGamePicker()`:
    ```js
-   { label: '🎯 Yeni Oyun', description: 'Açıklama', game: 'yenioyun' }
+   { label: '🎯 Your Game', description: 'Short description', game: 'yourgame' }
    ```
 
-4. `createGamePanel()` içindeki `titles` ve `htmlMap` nesnelerine ekle.
+4. Add it to the `titles` and `htmlMap` objects inside `createGamePanel()`.
 
-## 🔧 Kurallar
+## 🔧 Rules & Standards
 
-- Her oyun **kendi `.js` dosyasında** bulunmalı — `extension.js`'e oyun kodu yazma
-- Oyun dosyaları yalnızca `module.exports = { getXxxHTML }` dışa aktarmalı; VS Code API kullanmamalı
-- WebView'de `Content-Security-Policy` her zaman korunmalı (`nonce` kullan)
-- `ESC` → kapatma ve `🎮 Change Game` → oyun seçici her oyunda çalışmalı
-- Yeni bir oyun açarken `baseScript()` ve `baseCSS()` yardımcılarını kullan
+- Each game **must live in its own `.js` file** — do not write game code directly in `extension.js`
+- Game files must only export `module.exports = { getXxxHTML }` — no VS Code API usage inside game files
+- Always maintain `Content-Security-Policy` in WebViews (use `nonce`)
+- Every game must support `ESC` → close and `🎮 Change Game` → game picker
+- Keep games CPU-friendly — avoid unnecessary `requestAnimationFrame` when idle
 
-## 📬 Pull Request
+## 📬 Pull Request Process
 
-1. Fork'la
-2. Feature branch oluştur: `git checkout -b feat/yeni-oyun-adi`
-3. Değişikliklerini commit'le: `git commit -m "feat: Yeni Oyun eklendi"`
-4. Push'la: `git push origin feat/yeni-oyun-adi`
-5. Pull Request aç — oyun adını, kontrolleri ve ekran görüntüsünü açıklamaya ekle
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feat/your-game-name`
+3. Commit your changes: `git commit -m "feat: add Your Game"`
+4. Push: `git push origin feat/your-game-name`
+5. Open a Pull Request — include the game name, controls, and a screenshot in the description
 
-## 🐛 Bug Bildirimi
+## 🐛 Reporting Bugs
 
-GitHub Issues üzerinden bildir. Şunları ekle:
-- VS Code / Cursor sürümü
-- İşletim sistemi
-- Hatanın nasıl tetiklendiği
-- Hata mesajı (varsa)
+Open a [GitHub Issue](https://github.com/berkesasa/ide-games/issues) and include:
+- VS Code / Cursor version
+- Operating system
+- Steps to reproduce
+- Error message (if any)

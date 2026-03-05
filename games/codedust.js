@@ -1,8 +1,7 @@
 /**
- * 🧹 Code Dust — Kazı-Kazan / Scratch-off oyunu
- * VS Code editor background rengiyle kaplı ekranı
- * fare hareketiyle silerek gizli görseli ortaya çıkar.
- * destination-out canvas tekniği, idle'da sıfır CPU.
+ * 🧹 Code Dust — Scratch-off canvas game
+ * Mouse drag erases the dust layer to reveal a hidden scene below.
+ * Uses canvas destination-out for zero-CPU idle performance.
  */
 
 function getCodeDustHTML(nonce) {
@@ -31,7 +30,7 @@ canvas{display:block;}
 .replay-btn{font-size:13px;font-weight:700;color:#fff;background:linear-gradient(135deg,#6366F1,#EC4899);border:none;border-radius:8px;padding:8px 22px;cursor:pointer;box-shadow:0 0 18px rgba(99,102,241,.5);transition:transform .15s,box-shadow .15s;}
 .replay-btn:hover{transform:scale(1.05);box-shadow:0 0 28px rgba(236,72,153,.6);}
 </style></head><body>
-<div id="banner">✨ AI Cevabı Hazır!</div>
+<div id="banner">✨ AI Response Ready!</div>
 <div class="topbar">
     <span class="title">🧹 CODE DUST</span>
     <span class="score" id="sc" style="color:#EC4899">0%</span>
@@ -41,14 +40,14 @@ canvas{display:block;}
   <canvas id="bgC" width="500" height="310" style="position:absolute;top:0;left:0;display:block;"></canvas>
   <canvas id="dirtC" width="500" height="310" style="position:absolute;top:0;left:0;display:block;cursor:crosshair;"></canvas>
   <div class="done-overlay" id="doneOverlay">
-    <div class="done-text">🎨 Mükemmel!</div>
-    <div class="done-sub">Yüzey %100 temizlendi!</div>
-    <button class="replay-btn" id="replayBtn">Tekrar Oyna</button>
+    <div class="done-text">🎨 Perfect!</div>
+    <div class="done-sub">Surface 100% revealed!</div>
+    <button class="replay-btn" id="replayBtn">Play Again</button>
   </div>
 </div>
 <div class="prog-wrap"><div class="prog-bar" id="pbar"></div></div>
-<p class="pct-label" id="pctLabel">🖌️ Fareyle yüzeyi temizleyin…</p>
-<div class="hint">FARE SÜRÜKLE → Temizle | ESC → Kapat</div>
+<p class="pct-label" id="pctLabel">🖌️ Move your mouse to scratch the surface…</p>
+<div class="hint">DRAG MOUSE → Scratch | ESC → Close</div>
 <script nonce="${nonce}">
 const vscode=acquireVsCodeApi();
 window.addEventListener('message',e=>{if(e.data.type==='aiResponseComplete')document.getElementById('banner').classList.add('visible');});
@@ -111,16 +110,16 @@ function startSampling(){
         const total=(d.length/4)/step,pct=Math.min(100,Math.round((transp/total)*100));
         document.getElementById('pbar').style.width=pct+'%';
         document.getElementById('sc').textContent=pct+'%';
-        if(pct<20)document.getElementById('pctLabel').textContent='🖌️ Fareyle yüzeyi temizleyin…';
-        else if(pct<45)document.getElementById('pctLabel').textContent='🔥 '+pct+'% temizlendi — devam!';
-        else if(pct<70)document.getElementById('pctLabel').textContent='✨ '+pct+'% temizlendi — harika!';
-        else if(pct<90)document.getElementById('pctLabel').textContent='🌟 '+pct+'% — neredeyse bitti!';
-        else if(pct<100)document.getElementById('pctLabel').textContent='💫 '+pct+'% — son dokunuşlar!';
-        if(pct>=92&&!done){done=true;clearInterval(sampleHandle);dX.clearRect(0,0,W,H);document.getElementById('pbar').style.width='100%';document.getElementById('sc').textContent='100%';document.getElementById('pctLabel').textContent='🎉 Mükemmel! Gizem ortaya çıktı!';setTimeout(()=>document.getElementById('doneOverlay').classList.add('show'),400);}
+        if(pct<20)document.getElementById('pctLabel').textContent='🖌️ Move your mouse to scratch the surface…';
+        else if(pct<45)document.getElementById('pctLabel').textContent='🔥 '+pct+'% cleared — keep going!';
+        else if(pct<70)document.getElementById('pctLabel').textContent='✨ '+pct+'% cleared — great job!';
+        else if(pct<90)document.getElementById('pctLabel').textContent='🌟 '+pct+'% — almost there!';
+        else if(pct<100)document.getElementById('pctLabel').textContent='💫 '+pct+'% — final touches!';
+        if(pct>=92&&!done){done=true;clearInterval(sampleHandle);dX.clearRect(0,0,W,H);document.getElementById('pbar').style.width='100%';document.getElementById('sc').textContent='100%';document.getElementById('pctLabel').textContent='🎉 Perfect! The hidden scene is revealed!';setTimeout(()=>document.getElementById('doneOverlay').classList.add('show'),400);}
     },250);
 }
 
-function resetGame(){done=false;clearInterval(sampleHandle);document.getElementById('doneOverlay').classList.remove('show');document.getElementById('pbar').style.width='0%';document.getElementById('sc').textContent='0%';document.getElementById('pctLabel').textContent='🖌️ Fareyle yüzeyi temizleyin…';fillDirt();startSampling();}
+function resetGame(){done=false;clearInterval(sampleHandle);document.getElementById('doneOverlay').classList.remove('show');document.getElementById('pbar').style.width='0%';document.getElementById('sc').textContent='0%';document.getElementById('pctLabel').textContent='🖌️ Move your mouse to scratch the surface…';fillDirt();startSampling();}
 
 dirtC.addEventListener('mousedown',()=>{isDrawing=true;lastX=null;lastY=null;});
 dirtC.addEventListener('mouseup',()=>{isDrawing=false;lastX=null;lastY=null;});

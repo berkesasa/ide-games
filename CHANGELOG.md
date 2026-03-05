@@ -1,56 +1,23 @@
 # Changelog
 
-Tüm önemli değişiklikler bu dosyada belgelenir.
-Format: [Keep a Changelog](https://keepachangelog.com/tr/1.0.0/)
+All notable changes to this project are documented here.
+Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
-## [3.0.0] — 2026-03-05
+## [1.0.0] — 2026-03-06
 
-### 🆕 Eklendi
-- **🔢 2048 oyunu** — klasik sayı birleştirme oyunu (`games/game2048.js`)
-  - Dark premium UI, tile animasyonları (pop + merge)
-  - Best score kalıcı saklama (`vscode.getState`)
-  - Swipe (dokunmatik) desteği
-  - "Devam Et" modu — 2048 sonrası oynamaya devam
-- **`games/` klasörü** — oyunlar artık ayrı dosyalarda (yeniden kullanılabilir mimari)
-
-### 🗑️ Kaldırıldı
-- Snake oyunu
-- Pong oyunu
-
-### 🔄 Değişti
-- `Tile Cleaner` → **Code Dust** (Kazı-Kazan konsepti planlandı)
-- `package.json` açıklaması güncellendi
-
----
-
-## [2.1.0] — 2026-03-04
-
-### 🆕 Eklendi
-- 🧹 Tile Cleaner oyunu (dual canvas, `destination-out` fırça, nebula arka planı)
-- `@games` chat participant desteği
-
-### 🔧 Düzeltildi
-- Runner oyununda parçacık ömrü bitince crash hatası giderildi
-- `ESC` ile panel kapatma tüm oyunlarda çalışıyor
-
----
-
-## [2.0.0] — 2026-03-03
-
-### 🆕 Eklendi
-- 🏓 Pong oyunu (AI rakip)
-- 🐍 Snake oyunu
-- 🧠 Memory oyunu (renk eşleştirme)
-- Tüm oyunlarda `Change Game` butonu
-- Status bar butonu (`🎮 IDE Games`)
-- `ViewColumn.One` — editör bölünmeden açılıyor
-
----
-
-## [1.0.0] — 2026-02-28
-
-### 🆕 İlk Sürüm
-- 🏃 Runner oyunu (zıplama, engeller, parçacık efekti)
-- `@runner` chat participant
+### Added
+- **🔢 2048** — classic number merge game with dark premium UI, tile animations, best score, swipe support, WASD controls
+- **🏃 Runner** — endless runner with jump mechanics, obstacles, and particle effects
+- **🧹 Code Dust** — scratch-off canvas game using `destination-out` technique and nebula background
+- **🧠 Memory** — color pair matching game
+- **`games/` modular architecture** — each game lives in its own file (`games/*.js`)
+- `extension.js` acts as routing-only entry point (~134 lines)
+- Status bar button (`🎮 IDE Games`)
+- `ESC` to close any game
+- `🎮 Change Game` button in all games
+- `@games` chat participant — game picker opens while AI responds
+- `ViewColumn.One` — games open without splitting the editor
+- Open-source essentials: `LICENSE` (MIT), `.gitignore`, `CONTRIBUTING.md`, `CHANGELOG.md`
+- `package.json` enriched with `repository`, `homepage`, `bugs`, and `keywords`

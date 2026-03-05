@@ -1,8 +1,8 @@
 {
   "name": "ide-games",
   "displayName": "IDE Games",
-  "description": "AI çalışırken sizi eğlendiren mini oyun koleksiyonu — 2048, Runner, Code Dust, Memory, Flappy Bird",
-  "version": "3.0.0",
+  "description": "A collection of mini-games to play while waiting for AI responses — 2048, Runner, Code Dust, Memory",
+  "version": "1.0.0",
   "publisher": "berkesasa",
   "license": "MIT",
   "repository": {

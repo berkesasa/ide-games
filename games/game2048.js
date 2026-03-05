@@ -282,7 +282,7 @@ body {
 </head>
 <body>
 
-<div id="banner">✨ AI Cevabı Hazır!</div>
+<div id="banner">✨ AI Response Ready!</div>
 
 <!-- Top Bar -->
 <div class="topbar">
@@ -315,19 +315,19 @@ body {
 
     <!-- Overlays -->
     <div class="overlay" id="winOverlay">
-        <div class="overlay-title">🏆 Kazandın!</div>
+        <div class="overlay-title">🏆 You Win!</div>
         <div class="overlay-sub" id="winScore"></div>
-        <button class="overlay-btn" id="continueBtn">Devam Et</button>
-        <button class="overlay-btn" style="background:linear-gradient(135deg,#334155,#1E293B);margin-top:0;box-shadow:none;" id="restartFromWin">Yeniden Başla</button>
+        <button class="overlay-btn" id="continueBtn">Continue</button>
+        <button class="overlay-btn" style="background:linear-gradient(135deg,#334155,#1E293B);margin-top:0;box-shadow:none;" id="restartFromWin">Restart</button>
     </div>
     <div class="overlay" id="loseOverlay">
-        <div class="overlay-title" style="color:#EF4444">😵 Oyun Bitti</div>
+        <div class="overlay-title" style="color:#EF4444">💫 Game Over</div>
         <div class="overlay-sub" id="loseScore"></div>
-        <button class="overlay-btn" id="restartFromLose">Tekrar Oyna</button>
+        <button class="overlay-btn" id="restartFromLose">Play Again</button>
     </div>
 </div>
 
-<div class="hint">↑ ↓ ← → Ok tuşları veya WASD | Swipe | ESC → Kapat</div>
+<div class="hint">↑ ↓ ← → Arrow keys or WASD | Swipe | ESC → Close</div>
 
 <script nonce="${nonce}">
 // ── VS Code API ──────────────────────────────────────────────

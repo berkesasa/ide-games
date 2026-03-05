@@ -11,7 +11,7 @@ let statusBarItem;
 function activate(context) {
     statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
     statusBarItem.text = "$(game) 🎮 IDE Games";
-    statusBarItem.tooltip = "Mini oyun koleksiyonunu aç/kapat";
+    statusBarItem.tooltip = "Open / close the mini-game collection";
     statusBarItem.command = 'ideGames.open';
     statusBarItem.show();
     context.subscriptions.push(statusBarItem);
@@ -36,20 +36,20 @@ async function showGamePicker() {
     if (gamePanel) { closeGamePanel(0); }
 
     const pick = await vscode.window.showQuickPick([
-        { label: '🔢 2048', description: 'Kaydır, birleştir, 2048\'e ulaş!', game: '2048' },
-        { label: '🏃 Runner', description: 'Zıpla ve engellerden kaç', game: 'runner' },
-        { label: '🧹 Code Dust', description: 'Kazı-Kazan: gizli görseli ortaya çıkar', game: 'tilecleaner' },
-        { label: '🧠 Memory', description: 'Renk çiftlerini eşleştir', game: 'memory' },
-    ], { placeHolder: '🎮 Hangi oyunu oynamak istersin?', title: 'IDE Games' });
+        { label: '🔢 2048', description: 'Slide, merge, reach 2048!', game: '2048' },
+        { label: '🏃 Runner', description: 'Jump over obstacles', game: 'runner' },
+        { label: '🧹 Code Dust', description: 'Scratch-off: reveal the hidden scene', game: 'tilecleaner' },
+        { label: '🧠 Memory', description: 'Match color pairs', game: 'memory' },
+    ], { placeHolder: '🎮 Which game do you want to play?', title: 'IDE Games' });
 
     if (pick) createGamePanel(pick.game);
 }
 
 async function chatHandler(request, context, stream, token) {
-    // LLM işlemi başlamadan önce QuickPick ile oyun seçtir
+    // Open game picker before AI starts processing
     await showGamePicker();
 
-    stream.markdown('🎮 **IDE Games!** AI çalışırken oyunun tadını çıkarın.\n\n');
+    stream.markdown('🎮 **IDE Games!** Enjoy a game while AI is working.\n\n');
     try {
         const allModels = await vscode.lm.selectChatModels();
         const model = allModels?.[0];
@@ -58,11 +58,11 @@ async function chatHandler(request, context, stream, token) {
             const resp = await model.sendRequest(msgs, {}, token);
             for await (const f of resp.text) stream.markdown(f);
         } else {
-            stream.markdown('AI modeli bulunamadı, ama oyunun tadını çıkarın! 🎯');
+            stream.markdown('No AI model found, but enjoy the game! 🎯');
         }
-    } catch (e) { stream.markdown('Oyuna devam! 🕹️'); }
+    } catch (e) { stream.markdown('Keep playing! 🕹️'); }
 
-    // Yanıt bittiğinde paneli uygun bir uyarı ile 3 saniye sonra kapatır
+    // Close the game panel 3 seconds after AI response completes
     closeGamePanel(3000);
     return { metadata: { command: 'games' } };
 }

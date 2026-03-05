@@ -1,6 +1,6 @@
 /**
- * 🧠 Memory — Renk çifti eşleştirme oyunu
- * Kartlara tıklayarak aynı renkteki çiftleri bul.
+ * 🧠 Memory — Color pair matching game
+ * Click cards to find matching color pairs.
  */
 
 function getMemoryHTML(nonce) {
@@ -20,14 +20,14 @@ canvas{display:block;}
 #banner{position:fixed;top:0;left:0;right:0;padding:12px;background:linear-gradient(135deg,#6366F1,#8B5CF6);color:white;text-align:center;font-size:13px;font-weight:700;transform:translateY(-100%);transition:transform .5s cubic-bezier(.68,-.55,.265,1.55);z-index:100;}
 #banner.visible{transform:translateY(0);}
 </style></head><body>
-<div id="banner">✨ AI Cevabı Hazır!</div>
+<div id="banner">✨ AI Response Ready!</div>
 <div class="topbar">
     <span class="title">🧠 MEMORY</span>
-    <span class="score" id="sc" style="color:#8B5CF6">0 hamle</span>
+    <span class="score" id="sc" style="color:#8B5CF6">0 moves</span>
     <button class="change-btn" id="changeBtn">🎮 Change Game</button>
 </div>
 <div class="wrap"><canvas id="c" width="400" height="400"></canvas></div>
-<div class="hint">KARTLARA TIKLA → Çiftleri bul | ESC → Kapat</div>
+<div class="hint">CLICK CARDS → Find pairs | ESC → Close</div>
 <script nonce="${nonce}">
 const vscode=acquireVsCodeApi();
 window.addEventListener('message',e=>{if(e.data.type==='aiResponseComplete')document.getElementById('banner').classList.add('visible');});
@@ -43,7 +43,7 @@ const cw=(400-PAD*(COLS+1))/COLS,ch=(400-PAD*(ROWS+1))/ROWS;
 let cards=[],flipped=[],matched=[],moves=0,lock=false,done=false;
 
 function shuffle(a){for(let i=a.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
-function init(){let all=shuffle([...CC,...CC]);cards=all.map((c,i)=>({color:c,idx:i,col:i%COLS,row:Math.floor(i/COLS)}));flipped=[];matched=[];moves=0;lock=false;done=false;document.getElementById('sc').textContent='0 hamle';}
+function init(){let all=shuffle([...CC,...CC]);cards=all.map((c,i)=>({color:c,idx:i,col:i%COLS,row:Math.floor(i/COLS)}));flipped=[];matched=[];moves=0;lock=false;done=false;document.getElementById('sc').textContent='0 moves';}
 
 function draw(){
     X.fillStyle='#0F172A';X.fillRect(0,0,400,400);
@@ -52,7 +52,7 @@ function draw(){
         if(fl){X.fillStyle=c.color;rr(X,x,y,cw,ch,10);X.fill();X.fillStyle='rgba(255,255,255,.3)';X.beginPath();X.arc(x+cw/2,y+ch/2,15,0,Math.PI*2);X.fill();}
         else{let gr=X.createLinearGradient(x,y,x+cw,y+ch);gr.addColorStop(0,'#1E293B');gr.addColorStop(1,'#283548');X.fillStyle=gr;rr(X,x,y,cw,ch,10);X.fill();X.strokeStyle='#334155';X.lineWidth=1;rr(X,x,y,cw,ch,10);X.stroke();X.fillStyle='#475569';X.font='bold 22px sans-serif';X.textAlign='center';X.textBaseline='middle';X.fillText('?',x+cw/2,y+ch/2);}
     });
-    if(done){X.fillStyle='rgba(15,23,42,.75)';X.fillRect(0,0,400,400);X.fillStyle='#F1F5F9';X.font='bold 22px sans-serif';X.textAlign='center';X.fillText('🎉 Tebrikler! '+moves+' hamle',200,190);X.fillStyle='#94A3B8';X.font='14px sans-serif';X.fillText('Tıkla → Tekrar oyna',200,220);}
+    if(done){X.fillStyle='rgba(15,23,42,.75)';X.fillRect(0,0,400,400);X.fillStyle='#F1F5F9';X.font='bold 22px sans-serif';X.textAlign='center';X.fillText('🎉 Congrats! '+moves+' moves',200,190);X.fillStyle='#94A3B8';X.font='14px sans-serif';X.fillText('Click → Play again',200,220);}
 }
 
 C.addEventListener('click',e=>{
@@ -62,7 +62,7 @@ C.addEventListener('click',e=>{
     let card=cards.find(c=>{let x=PAD+c.col*(cw+PAD),y=PAD+c.row*(ch+PAD);return mx>=x&&mx<=x+cw&&my>=y&&my<=y+ch;});
     if(!card||flipped.includes(card.idx)||matched.includes(card.idx))return;
     flipped.push(card.idx);draw();
-    if(flipped.length===2){moves++;document.getElementById('sc').textContent=moves+' hamle';lock=true;
+    if(flipped.length===2){moves++;document.getElementById('sc').textContent=moves+' moves';lock=true;
         let[a,b]=flipped;
         if(cards[a].color===cards[b].color){matched.push(a,b);flipped=[];lock=false;draw();if(matched.length===cards.length){done=true;draw();}}
         else{setTimeout(()=>{flipped=[];lock=false;draw();},700);}

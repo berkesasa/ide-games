@@ -1,6 +1,6 @@
 /**
- * 🏃 Runner — Sonsuz koşucu oyunu
- * Space veya tıklama ile zıpla, engellerden kaç.
+ * 🏃 Runner — Endless runner game
+ * Press Space or click to jump, avoid obstacles.
  */
 
 function getRunnerHTML(nonce) {
@@ -20,14 +20,14 @@ canvas{display:block;}
 #banner{position:fixed;top:0;left:0;right:0;padding:12px;background:linear-gradient(135deg,#6366F1,#8B5CF6);color:white;text-align:center;font-size:13px;font-weight:700;transform:translateY(-100%);transition:transform .5s cubic-bezier(.68,-.55,.265,1.55);z-index:100;}
 #banner.visible{transform:translateY(0);}
 </style></head><body>
-<div id="banner">✨ AI Cevabı Hazır!</div>
+<div id="banner">✨ AI Response Ready!</div>
 <div class="topbar">
     <span class="title">🏃 RUNNER</span>
     <span class="score" id="sc" style="color:#FF6B6B">0</span>
     <button class="change-btn" id="changeBtn">🎮 Change Game</button>
 </div>
 <div class="wrap"><canvas id="c" width="500" height="300"></canvas></div>
-<div class="hint">SPACE veya TIKLA → Zıpla | ESC → Kapat</div>
+<div class="hint">SPACE or CLICK → Jump | ESC → Close</div>
 <script nonce="${nonce}">
 const vscode=acquireVsCodeApi();
 window.addEventListener('message',e=>{if(e.data.type==='aiResponseComplete')document.getElementById('banner').classList.add('visible');});
@@ -78,8 +78,8 @@ function draw(){
 
     if(state==='dead'){
         X.fillStyle='rgba(15,23,42,0.75)';X.fillRect(0,0,W,H);
-        X.fillStyle='#F1F5F9';X.font='bold 24px sans-serif';X.textAlign='center';X.fillText('💥 Oyun Bitti! Skor: '+score,W/2,H/2-12);
-        X.fillStyle='#94A3B8';X.font='14px sans-serif';X.fillText('Space veya tıkla → Tekrar oyna',W/2,H/2+18);
+        X.fillStyle='#F1F5F9';X.font='bold 24px sans-serif';X.textAlign='center';X.fillText('💥 Game Over! Score: '+score,W/2,H/2-12);
+        X.fillStyle='#94A3B8';X.font='14px sans-serif';X.fillText('Space or click → Play again',W/2,H/2+18);
     }
 }
 
