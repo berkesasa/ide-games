@@ -327,7 +327,7 @@ body {
     </div>
 </div>
 
-<div class="hint">↑ ↓ ← → Ok tuşları veya Swipe | ESC → Kapat</div>
+<div class="hint">↑ ↓ ← → Ok tuşları veya WASD | Swipe | ESC → Kapat</div>
 
 <script nonce="${nonce}">
 // ── VS Code API ──────────────────────────────────────────────
@@ -585,14 +585,14 @@ function afterMove(moved) {
     }
 }
 
-// ── Keyboard Controls ────────────────────────────────────────
+// ── Keyboard Controls (Arrow keys + WASD) ────────────────────
 document.addEventListener('keydown', e => {
     if (over) return;
     switch (e.key) {
-        case 'ArrowLeft':  e.preventDefault(); afterMove(moveLeft());  break;
-        case 'ArrowRight': e.preventDefault(); afterMove(moveRight()); break;
-        case 'ArrowUp':    e.preventDefault(); afterMove(moveUp());    break;
-        case 'ArrowDown':  e.preventDefault(); afterMove(moveDown());  break;
+        case 'ArrowLeft':  case 'a': case 'A': e.preventDefault(); afterMove(moveLeft());  break;
+        case 'ArrowRight': case 'd': case 'D': e.preventDefault(); afterMove(moveRight()); break;
+        case 'ArrowUp':    case 'w': case 'W': e.preventDefault(); afterMove(moveUp());    break;
+        case 'ArrowDown':  case 's': case 'S': e.preventDefault(); afterMove(moveDown());  break;
     }
 });
 
