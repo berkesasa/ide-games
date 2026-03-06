@@ -104,13 +104,14 @@ body {
     font-weight: 600;
     color: #818CF8;
     cursor: pointer;
-    padding: 5px 12px;
+    padding: 0 12px;
     border-radius: 6px;
     border: 1px solid #334155;
     background: #1E293B;
     transition: all .2s;
     letter-spacing: .3px;
     white-space: nowrap;
+    align-self: stretch;
 }
 .change-btn:hover { background: #334155; color: #A5B4FC; border-color: #818CF8; }
 
@@ -173,14 +174,11 @@ body {
 .tiles-layer {
     position: absolute;
     inset: 0;
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    grid-template-rows: repeat(4, 1fr);
-    gap: 10px;
     pointer-events: none;
 }
 
 .tile {
+    position: absolute;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -189,7 +187,6 @@ body {
     font-size: 28px;
     line-height: 1;
     transition: background .12s ease, color .12s ease;
-    position: relative;
     overflow: hidden;
 }
 
@@ -302,8 +299,8 @@ body {
 
 <!-- Sub row -->
 <div class="subrow">
-    <span class="subtitle">Sayıları birleştir → <b style="color:#FBBF24">2048</b>'e ulaş!</span>
-    <button class="new-btn" id="newBtn">Yeni Oyun</button>
+    <span class="subtitle">Combine tiles → reach <b style="color:#FBBF24">2048!</b></span>
+    <button class="new-btn" id="newBtn">New Game</button>
 </div>
 
 <!-- Board -->
@@ -320,6 +317,12 @@ body {
         <button class="overlay-btn" id="continueBtn">Continue</button>
         <button class="overlay-btn" style="background:linear-gradient(135deg,#334155,#1E293B);margin-top:0;box-shadow:none;" id="restartFromWin">Restart</button>
     </div>
+    <div class="overlay" id="startOverlay">
+        <div class="overlay-title" style="color:#FBBF24">💾 Saved Game</div>
+        <div class="overlay-sub" id="savedScore"></div>
+        <button class="overlay-btn" id="continueFromSave">Continue</button>
+        <button class="overlay-btn" style="background:linear-gradient(135deg,#334155,#1E293B);margin-top:0;box-shadow:none;" id="newFromSave">New Game</button>
+    </div>
     <div class="overlay" id="loseOverlay">
         <div class="overlay-title" style="color:#EF4444">💫 Game Over</div>
         <div class="overlay-sub" id="loseScore"></div>
@@ -327,7 +330,7 @@ body {
     </div>
 </div>
 
-<div class="hint">↑ ↓ ← → Arrow keys or WASD | Swipe | ESC → Close</div>
+<div class="hint">↑ ↓ ← → Arrow keys or WASD | ESC → Close</div>
 
 <script nonce="${nonce}">
 // ── VS Code API ──────────────────────────────────────────────
@@ -335,8 +338,14 @@ const vscode = acquireVsCodeApi();
 
 // AI banner
 window.addEventListener('message', e => {
-    if (e.data.type === 'aiResponseComplete') {
+    const msg = e.data;
+    if (msg.type === 'aiResponseComplete') {
         document.getElementById('banner').classList.add('visible');
+    } else if (msg.type === 'stateLoaded') {
+        handleCheckpointLoad(msg.payload);
+    } else if (msg.type === 'bestLoaded') {
+        bestScore = msg.payload || 0;
+        document.getElementById('bestVal').textContent = bestScore;
     }
 });
 
@@ -350,20 +359,53 @@ document.getElementById('changeBtn').addEventListener('click', () => {
     vscode.postMessage({ type: 'changeGame' });
 });
 
-// Best score (persisted via vscode state)
-const savedState = vscode.getState() || {};
-let bestScore = savedState.best2048 || 0;
-document.getElementById('bestVal').textContent = bestScore;
+// Best score
+let bestScore = 0;
+
+// ── Persistence helpers ──────────────────────────────────────
+function saveCheckpoint() {
+    vscode.postMessage({
+        type: 'saveState',
+        payload: { board: board.slice(), score, won }
+    });
+}
+
+function clearCheckpoint() {
+    vscode.postMessage({ type: 'saveState', payload: null });
+}
+
+function saveBest() {
+    vscode.postMessage({ type: 'saveBest', payload: bestScore });
+}
+
+function handleCheckpointLoad(checkpoint) {
+    // Use requestAnimationFrame to ensure DOM is fully laid out before render()
+    requestAnimationFrame(() => {
+        if (checkpoint && Array.isArray(checkpoint.board)) {
+            board = checkpoint.board.map(Number); // guard against stringified values
+            score = checkpoint.score || 0;
+            won   = checkpoint.won   || false;
+            over  = false;
+            render();
+            updateScoreDisplay();
+            document.getElementById('savedScore').textContent = 'Score: ' + score;
+            document.getElementById('startOverlay').classList.add('active');
+        } else {
+            // No checkpoint — start fresh
+            initBoard();
+        }
+    });
+}
 
 // ── Game State ───────────────────────────────────────────────
 const SIZE = 4;
-let board = [];      // 4×4 flat array of numbers
+let board = [];
 let score = 0;
 let won   = false;
 let over  = false;
 
 // ── DOM helpers ──────────────────────────────────────────────
-const gridBg    = document.getElementById('gridBg');
+const gridBg     = document.getElementById('gridBg');
 const tilesLayer = document.getElementById('tilesLayer');
 
 // Build static bg cells (16 empty divs)
@@ -382,8 +424,9 @@ function initBoard() {
     addRandom();
     addRandom();
     render();
-    updateScore();
+    updateScoreDisplay();
     hideOverlays();
+    clearCheckpoint();
 }
 
 function addRandom() {
@@ -395,42 +438,53 @@ function addRandom() {
 }
 
 // ── Render ───────────────────────────────────────────────────
-// Track which tiles are "new" or "merged" for animation
 let newTiles    = new Set();
 let mergedTiles = new Set();
 
+function getTileMetrics() {
+    const totalSize = tilesLayer.offsetWidth || 400; // fallback if DOM not yet laid out
+    const GAP = 10;
+    const tileSize = (totalSize - GAP * (SIZE + 1)) / SIZE;
+    return { tileSize, GAP };
+}
+
 function render() {
     tilesLayer.innerHTML = '';
+    const { tileSize, GAP } = getTileMetrics();
     board.forEach((val, i) => {
+        if (val === 0) return;
+        const row = Math.floor(i / SIZE);
+        const col = i % SIZE;
         const tile = document.createElement('div');
         tile.className = 'tile ' + tileClass(val);
-        if (val !== 0) {
-            tile.textContent = val;
-            if (newTiles.has(i))    tile.classList.add('new');
-            if (mergedTiles.has(i)) tile.classList.add('merged');
-        }
+        tile.textContent = val;
+        tile.style.width  = tileSize + 'px';
+        tile.style.height = tileSize + 'px';
+        tile.style.left   = (GAP + col * (tileSize + GAP)) + 'px';
+        tile.style.top    = (GAP + row * (tileSize + GAP)) + 'px';
+        if (newTiles.has(i))    tile.classList.add('new');
+        if (mergedTiles.has(i)) tile.classList.add('merged');
         tilesLayer.appendChild(tile);
     });
 }
 
 function tileClass(val) {
-    if (val === 0)    return 't-0';
-    if (val > 2048)   return 't-high';
+    if (val === 0)  return 't-0';
+    if (val > 2048) return 't-high';
     return 't-' + val;
 }
 
 // ── Score ────────────────────────────────────────────────────
-function updateScore() {
+function updateScoreDisplay() {
     document.getElementById('scoreVal').textContent = score;
     if (score > bestScore) {
         bestScore = score;
         document.getElementById('bestVal').textContent = bestScore;
-        vscode.setState({ ...vscode.getState(), best2048: bestScore });
+        saveBest();
     }
 }
 
-// ── Move Logic (from reference: slide then combine then slide) ─
-// Returns whether the board changed.
+// ── Move Logic ───────────────────────────────────────────────
 function moveLeft() {
     let moved = false;
     newTiles.clear(); mergedTiles.clear();
@@ -442,10 +496,7 @@ function moveLeft() {
         score += gained;
         mergedIdx.forEach(i => mergedTiles.add(r * SIZE + i));
     }
-    if (moved) {
-        const ni = addRandom();
-        if (ni !== undefined) newTiles.add(ni);
-    }
+    if (moved) { const ni = addRandom(); if (ni !== undefined) newTiles.add(ni); }
     return moved;
 }
 
@@ -460,10 +511,7 @@ function moveRight() {
         score += gained;
         mergedIdx.forEach(i => mergedTiles.add(r * SIZE + (SIZE - 1 - i)));
     }
-    if (moved) {
-        const ni = addRandom();
-        if (ni !== undefined) newTiles.add(ni);
-    }
+    if (moved) { const ni = addRandom(); if (ni !== undefined) newTiles.add(ni); }
     return moved;
 }
 
@@ -478,10 +526,7 @@ function moveUp() {
         score += gained;
         mergedIdx.forEach(i => mergedTiles.add(i * SIZE + c));
     }
-    if (moved) {
-        const ni = addRandom();
-        if (ni !== undefined) newTiles.add(ni);
-    }
+    if (moved) { const ni = addRandom(); if (ni !== undefined) newTiles.add(ni); }
     return moved;
 }
 
@@ -496,22 +541,14 @@ function moveDown() {
         score += gained;
         mergedIdx.forEach(i => mergedTiles.add((SIZE - 1 - i) * SIZE + c));
     }
-    if (moved) {
-        const ni = addRandom();
-        if (ni !== undefined) newTiles.add(ni);
-    }
+    if (moved) { const ni = addRandom(); if (ni !== undefined) newTiles.add(ni); }
     return moved;
 }
 
-// Core slide + merge for a single line (left direction)
 function slideAndMerge(line) {
-    // 1. Filter out zeros
     let filtered = line.filter(v => v !== 0);
     const originalStr = line.join(',');
-
-    // 2. Merge adjacent equals (like reference's combine then slide)
-    let gained = 0;
-    let mergedIdx = [];
+    let gained = 0, mergedIdx = [];
     for (let i = 0; i < filtered.length - 1; i++) {
         if (filtered[i] === filtered[i + 1]) {
             filtered[i] *= 2;
@@ -520,10 +557,7 @@ function slideAndMerge(line) {
             filtered.splice(i + 1, 1);
         }
     }
-
-    // 3. Pad with zeros
     while (filtered.length < SIZE) filtered.push(0);
-
     const changed = filtered.join(',') !== originalStr;
     return { result: filtered, gained, changed, mergedIdx };
 }
@@ -534,17 +568,14 @@ function getCol(c) { return [0,1,2,3].map(r => board[r * SIZE + c]); }
 function setCol(c, arr) { arr.forEach((v, r) => { board[r * SIZE + c] = v; }); }
 
 // ── Win / Lose Checks ────────────────────────────────────────
-function checkWin() {
-    return board.includes(2048);
-}
-
+function checkWin()  { return board.includes(2048); }
 function checkLose() {
     if (board.includes(0)) return false;
     for (let r = 0; r < SIZE; r++) {
         for (let c = 0; c < SIZE; c++) {
             const v = board[r * SIZE + c];
-            if (c < SIZE - 1 && board[r * SIZE + c + 1] === v) return false;
-            if (r < SIZE - 1 && board[(r + 1) * SIZE + c] === v) return false;
+            if (c < SIZE-1 && board[r * SIZE + c+1] === v) return false;
+            if (r < SIZE-1 && board[(r+1) * SIZE + c] === v) return false;
         }
     }
     return true;
@@ -552,27 +583,29 @@ function checkLose() {
 
 // ── Overlays ─────────────────────────────────────────────────
 function hideOverlays() {
-    document.getElementById('winOverlay').classList.remove('active');
-    document.getElementById('loseOverlay').classList.remove('active');
+    ['winOverlay','loseOverlay','startOverlay'].forEach(id =>
+        document.getElementById(id).classList.remove('active')
+    );
 }
 
 function showWin() {
-    const ov = document.getElementById('winOverlay');
-    document.getElementById('winScore').textContent = 'Skor: ' + score;
-    ov.classList.add('active');
+    document.getElementById('winScore').textContent = 'Score: ' + score;
+    document.getElementById('winOverlay').classList.add('active');
+    clearCheckpoint(); // won — no need to keep checkpoint
 }
 
 function showLose() {
-    const ov = document.getElementById('loseOverlay');
-    document.getElementById('loseScore').textContent = 'Skor: ' + score;
-    ov.classList.add('active');
+    document.getElementById('loseScore').textContent = 'Score: ' + score;
+    document.getElementById('loseOverlay').classList.add('active');
+    clearCheckpoint();
 }
 
 // ── After each move ──────────────────────────────────────────
 function afterMove(moved) {
     if (!moved) return;
     render();
-    updateScore();
+    updateScoreDisplay();
+    saveCheckpoint(); // auto-save after every valid move
 
     if (!won && checkWin()) {
         won = true;
@@ -619,15 +652,27 @@ document.addEventListener('touchend', e => {
 document.getElementById('newBtn').addEventListener('click', initBoard);
 
 document.getElementById('continueBtn').addEventListener('click', () => {
-    hideOverlays();
-    // Allow continuing past 2048
+    hideOverlays(); // continue past 2048
 });
 
 document.getElementById('restartFromWin').addEventListener('click', initBoard);
 document.getElementById('restartFromLose').addEventListener('click', initBoard);
 
-// ── Start ────────────────────────────────────────────────────
-initBoard();
+document.getElementById('continueFromSave').addEventListener('click', () => {
+    // User chose to resume saved game
+    hideOverlays();
+});
+
+document.getElementById('newFromSave').addEventListener('click', () => {
+    hideOverlays();
+    initBoard();
+});
+
+// ── Boot ─────────────────────────────────────────────────────
+// 1. Ask extension for best score
+vscode.postMessage({ type: 'loadBest' });
+// 2. Ask extension for checkpoint (response triggers handleCheckpointLoad)
+vscode.postMessage({ type: 'loadState' });
 </script>
 </body>
 </html>`;

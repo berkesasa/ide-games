@@ -7,8 +7,10 @@ const { getCodeDustHTML } = require('./games/codedust');
 let gamePanel = null;
 let closeTimeout = null;
 let statusBarItem;
+let extContext = null; // stored once in activate(), used everywhere
 
 function activate(context) {
+    extContext = context; // store for globalState access
     statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
     statusBarItem.text = "$(game) 🎮 IDE Games";
     statusBarItem.tooltip = "Open / close the mini-game collection";
@@ -99,13 +101,27 @@ function createGamePanel(gameName) {
     };
     gamePanel.webview.html = (htmlMap[gameName] || htmlMap.runner)(nonce);
 
-    // Webview'den gelen mesajları dinle
+    // Listen for messages from the WebView
     gamePanel.webview.onDidReceiveMessage(msg => {
         if (msg.type === 'closeGame') {
             closeGamePanel(0);
         } else if (msg.type === 'changeGame') {
             closeGamePanel(0);
             setTimeout(() => showGamePicker(), 100);
+        } else if (msg.type === 'saveState') {
+            // Save full game checkpoint (board + score + won)
+            extContext.globalState.update('2048_checkpoint', msg.payload);
+        } else if (msg.type === 'loadState') {
+            // Send checkpoint back to WebView on request
+            const checkpoint = extContext.globalState.get('2048_checkpoint', null);
+            gamePanel.webview.postMessage({ type: 'stateLoaded', payload: checkpoint });
+        } else if (msg.type === 'saveBest') {
+            // Save best score
+            extContext.globalState.update('2048_best', msg.payload);
+        } else if (msg.type === 'loadBest') {
+            // Send best score back to WebView
+            const best = extContext.globalState.get('2048_best', 0);
+            gamePanel.webview.postMessage({ type: 'bestLoaded', payload: best });
         }
     });
 
