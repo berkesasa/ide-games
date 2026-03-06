@@ -109,19 +109,22 @@ function createGamePanel(gameName) {
             closeGamePanel(0);
             setTimeout(() => showGamePicker(), 100);
         } else if (msg.type === 'saveState') {
-            // Save full game checkpoint (board + score + won)
             extContext.globalState.update('2048_checkpoint', msg.payload);
         } else if (msg.type === 'loadState') {
-            // Send checkpoint back to WebView on request
             const checkpoint = extContext.globalState.get('2048_checkpoint', null);
             gamePanel.webview.postMessage({ type: 'stateLoaded', payload: checkpoint });
         } else if (msg.type === 'saveBest') {
-            // Save best score
             extContext.globalState.update('2048_best', msg.payload);
         } else if (msg.type === 'loadBest') {
-            // Send best score back to WebView
             const best = extContext.globalState.get('2048_best', 0);
             gamePanel.webview.postMessage({ type: 'bestLoaded', payload: best });
+        } else if (msg.type === 'saveGlobal') {
+            // Generic key/value persistence — usable by any game
+            extContext.globalState.update(msg.key, msg.value);
+        } else if (msg.type === 'loadGlobal') {
+            // Generic load — responds with { type: 'globalLoaded', key, value }
+            const value = extContext.globalState.get(msg.key, msg.defaultValue ?? null);
+            if (gamePanel) gamePanel.webview.postMessage({ type: 'globalLoaded', key: msg.key, value });
         }
     });
 
